@@ -3,3 +3,4 @@ test_undist.jpg
 output_images/*.jpg
 undist_images/
 warped_images/
+.ipynb_checkpoints/

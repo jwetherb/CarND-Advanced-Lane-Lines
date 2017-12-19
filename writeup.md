@@ -1,6 +1,5 @@
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+## Udacity CarND: Advanced Lane Finding Writeup
+#### Jon Wetherbee, September 2017 Cohort
 
 ---
 
@@ -19,47 +18,65 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/undistort_output.png "Undistorted"
+[image0]: ./output_images/small_calibration1.jpg "Original Calibration Image"
+[image1]: ./output_images/small_undist_calibration1.jpg "Undistorted Calibration Image"
 [image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
+[image3]: ./output_images/small_threshold_straight_lines1.jpg "Binary Example"
+[image4]: ./output_images/small_perspective_straight_lines1.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
-
 ---
 
 ### Writeup / README
 
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
+This document describes the process involved in analyzing a video taken from a camera mounted on a car, and deriving the lane boundaries of the car while it is driving. 
 
-You're reading it!
+The result of the coding portion of the project is an annotated video, where the lane, bounded by lane lines on either side, is superimposed in green on the original video frames. Additionally, the calculated values for the location of the car with respect to lane center, and the curvature radii of the lane, are written to each resulting frame in the output video.
+
+The code for this project can be found in a Jupiter notebook here: [CarND-Advanced-Lane-Lines-checkpoint.ipynb](https://github.com/jwetherb/CarND-Advanced-Lane-Lines/blob/master/CarND-Advanced-Lane-Lines.ipynb).
 
 ### Camera Calibration
 
-#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
+Most commonly-used cameras introduce distortion in various ways. Fortunately there are ways of detecting this distortion and derive a matrix that can be used to transform the original image into an undistorted state. For this project, we were given twenty or so photos of a chessboard, from different angles and distances. These photos had been taken with the same camera that was on the car. Since we know the actual dimensions of an undistorted chessboard, we were able to use some opencv library methods to a) identify the corners of the chessboard in the original, distorted image, and then b) compare them to the corners on a known, undistorted chessboard, to produce distortion coefficients for calibrating the camera.
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./examples/example.ipynb" (or in lines # through # of the file called `some_file.py`).  
+Once calibrated, I was able to apply the same anti-distortion transformation to each frame of the video, correcting each image prior as a first step in the process.
 
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+The code for this step is contained in the first code cell of the IPython notebook located in [CarND-Advanced-Lane-Lines-checkpoint.ipynb](https://github.com/jwetherb/CarND-Advanced-Lane-Lines/blob/master/CarND-Advanced-Lane-Lines.ipynb)
 
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+I began by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time we successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
 
-![alt text][image1]
+I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  
+
+In code step [2] I show an example of applying this distortion correction to a calibration test image (below, left) using the `cv2.undistort()` function and obtained this result (below, right): 
+
+!["Original"][image0] !["Undistorted"][image1]
 
 ### Pipeline (single images)
 
-#### 1. Provide an example of a distortion-corrected image.
+This section describes the steps I used to detect the lane lines in an already undistorted image, like the one above. This process involves the following steps:
+
+1. Undistort the image (covered above)
+2. Apply color and sobel threshold transforms to isolate the path of the lane lines
+3. Warp the image so that we have a "birds-eye" view to work with
+4. Calculate the curvature of the lane lines, from this birds-eye view, as a polynomial equation
+5. Project this polynomial -- also known as the "fit" -- back onto the warped image
+6. Unwarp the "fit" lines and overlay them on top of the original (undistorted) image, to demonstrate that they are correct
+7. Finally, derive a solid green polygon that lives between the lane lines, and superimpose it on top of the original image, showing the full breadth of the lane
+
+#### Example of a distortion-corrected image
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 ![alt text][image2]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
+#### Creating the thresholded binary image
+
+Once I had
 I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
 
 ![alt text][image3]
