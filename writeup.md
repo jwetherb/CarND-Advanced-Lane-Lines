@@ -18,13 +18,14 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image0]: ./output_images/small_calibration1.jpg "Original Calibration Image"
-[image1]: ./output_images/small_undist_calibration1.jpg "Undistorted Calibration Image"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./output_images/small_threshold_straight_lines1.jpg "Binary Example"
-[image4]: ./output_images/small_perspective_straight_lines1.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
+[image0]: ./output_images/calibration1_small.jpg "Original Calibration Image"
+[image1]: ./output_images/undist_calibration1_small.jpg "Undistorted Calibration Image"
+[image2]: ./test_images/test6.jpg "Road Transformed"
+[image3]: ./output_images/threshold_test6_small.jpg "Binary Example"
+[image4a]: ./output_images/test6_small.jpg "Undistorted Image"
+[image4b]: ./output_images/warp_test6_small.jpg "Warped Image"
+[image5]: ./output_images/warp_plot_test6.jpg "Fit Visual"
+[image6]: ./output_images/annotated_test6_small.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -53,7 +54,7 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 In code step [2] I show an example of applying this distortion correction to a calibration test image (below, left) using the `cv2.undistort()` function and obtained this result (below, right): 
 
-!["Original"][image0] !["Undistorted"][image1]
+| !["Original"][image0] | !["Undistorted"][image1] |
 
 ### Pipeline (single images)
 
@@ -109,7 +110,7 @@ This resulted in the following source and destination points:
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
-![alt text][image4]
+|![alt text][image4a]|![alt text][image4b]|
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -133,7 +134,7 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./project_out.mp4)
 
 ---
 
