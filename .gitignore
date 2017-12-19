@@ -4,3 +4,6 @@ output_images/*.jpg
 undist_images/
 warped_images/
 .ipynb_checkpoints/
+challenge_video.mp4
+project_video.mp4
+harder_challenge_video.mp4
